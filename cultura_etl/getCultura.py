@@ -38,8 +38,6 @@ def filtrar_evento(evento):
         "url": f"https://cultura.sonora.gob.mx/eventos/{evento.get('uuid')}",
     }
 
-# (Tus demás funciones: combinar_fecha_hora, calcular_costo_minimo, resumir_tarifas, explotar_evento)
-# ... [Copia aquí tus funciones combinar_fecha_hora, calcular_costo_minimo, resumir_tarifas, explotar_evento] ...
 
 TZ_OFFSET = "-07:00"
 def combinar_fecha_hora(fecha, hora):
@@ -84,7 +82,7 @@ DB_HOST = os.environ.get("DB_HOST")
 DB_PORT = os.environ.get("DB_PORT")
 DB_NAME = os.environ.get("DB_NAME")
 
-engine = create_engine(f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+engine = create_engine(f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
 
 # Guardamos el DataFrame en la tabla 'eventos_culturales'. 
 # if_exists='replace' borra la tabla anterior y la crea de nuevo (útil para pruebas)
