@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-cultura_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-CulturaDemo2026}
+      POSTGRES_DB: ${DB_NAME:-cultura_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Este contenedor corre tu script, guarda los datos y se apaga
+  etl_cultura:
+    build: ./cultura_etl
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-cultura_db}
+      DB_USER: ${DB_USER:-cultura_user}
+      DB_PASSWORD: ${DB_PASSWORD:-CulturaDemo2026}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no" # Solo se ejecuta una vez al levantar
+
+  # Este contenedor alojará tu gráfico de Dash (Fase 2)
+  dash:
+    build: ./dash_app
+    ports:
+      - "127.0.0.1:8050:8050"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-cultura_db}
+      DB_USER: ${DB_USER:-cultura_user}
+      DB_PASSWORD: ${DB_PASSWORD:-CulturaDemo2026}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
