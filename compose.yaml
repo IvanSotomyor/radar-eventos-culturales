@@ -5,6 +5,8 @@ services:
       POSTGRES_USER: ${DB_USER:-cultura_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-CulturaDemo2026}
       POSTGRES_DB: ${DB_NAME:-cultura_db}
+    ports:
+      - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -28,23 +30,20 @@ services:
         condition: service_healthy
     restart: "no"
 
-  # ==========================================
-  # FASE 2: Descomentar cuando creemos la app
-  # ==========================================
-  # dash:
-  #   build: ./dash_app
-  #   ports:
-  #     - "127.0.0.1:8050:8050"
-  #   environment:
-  #     DB_HOST: postgres
-  #     DB_PORT: "5432"
-  #     DB_NAME: ${DB_NAME:-cultura_db}
-  #     DB_USER: ${DB_USER:-cultura_user}
-  #     DB_PASSWORD: ${DB_PASSWORD:-CulturaDemo2026}
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   restart: unless-stopped
+  dash:
+    build: ./dash_app
+    ports:
+      - "127.0.0.1:8050:8050"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:-cultura_db}
+      DB_USER: ${DB_USER:-cultura_user}
+      DB_PASSWORD: ${DB_PASSWORD:-CulturaDemo2026}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
